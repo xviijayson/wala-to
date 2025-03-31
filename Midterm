@@ -1,0 +1,78 @@
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+
+export default function App() {
+  const [name, setName] = useState("");
+  const [yearSection, setYearSection] = useState("");
+  const [course, setCourse] = useState("");
+  const [users, setUsers] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+
+  const handleAddOrEdit = () => {
+    if (editingIndex !== null) {
+      const updatedUsers = [...users];
+      updatedUsers[editingIndex] = { name, yearSection, course };
+      setUsers(updatedUsers);
+      setEditingIndex(null);
+    } else {
+      setUsers([...users, { name, yearSection, course }]);
+    }
+    setName("");
+    setYearSection("");
+    setCourse("");
+  };
+
+  const handleEdit = (index) => {
+    const user = users[index];
+    setName(user.name);
+    setYearSection(user.yearSection);
+    setCourse(user.course);
+    setEditingIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    const updatedUsers = users.filter((_, i) => i !== index);
+    setUsers(updatedUsers);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>User Details</Text>
+      
+      <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Year/Section" value={yearSection} onChangeText={setYearSection} />
+      <TextInput style={styles.input} placeholder="Course" value={course} onChangeText={setCourse} />
+      
+      <Button title={editingIndex !== null ? "Update" : "Add"} onPress={handleAddOrEdit} />
+
+      <FlatList
+        data={users}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.listItem}>
+            <Text>{item.name} - {item.yearSection} - {item.course}</Text>
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => handleEdit(index)} style={styles.editButton}>
+                <Text style={styles.buttonText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: "#f8f9fa" },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
+  input: { borderWidth: 1, padding: 10, marginVertical: 5, borderRadius: 5 },
+  listItem: { padding: 10, borderBottomWidth: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  actions: { flexDirection: "row" },
+  editButton: { backgroundColor: "#f4b400", padding: 5, borderRadius: 5, marginRight: 5 },
+  deleteButton: { backgroundColor: "#d9534f", padding: 5, borderRadius: 5 },
+  buttonText: { color: "#fff", fontWeight: "bold" },
+});
